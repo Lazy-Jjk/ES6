@@ -1,17 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Data</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js library -->
+    <title>Weather Forecast</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <h1>Weather Forecast</h1>
-    <input type="text" id="city" placeholder="Enter City">
-    <button id="fetchWeather">Get Weather</button>
-    <canvas id="weatherChart" width="400" height="200"></canvas>
+    <input type="text" id="city" placeholder="Enter city name">
+    <button id="fetchWeather">Fetch Weather</button>
+    <canvas id="weatherChart"></canvas>
+    <script>
+        const apiKey = '18edcf34c5d0eb6bb60e843bf9d0be31';
+        const apiUrl = 'https://api.openweathermap.org/data/2.5/forecast';
 
-    <script src="app.js"></script> <!-- Link to your JavaScript file -->
+        document.getElementById('fetchWeather').addEventListener('click', async () => {
+            const city = document.getElementById('city').value;
+            if (!city) return alert("Please enter a city name.");
+            try {
+                const response = await fetch(`${apiUrl}?q=${city}&units=metric&cnt=5&appid=${apiKey}`);
+                const data = await response.json();
+                const labels = data.list.map(item => new Date(item.dt * 1000).toLocaleTimeString());
+                const temperatures = data.list.map(item => item.main.temp);
+                new Chart(document.getElementById('weatherChart'), {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'Temperature (°C)',
+                            data: temperatures,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            fill: true,
+                        }]
+                    },
+                    options: { responsive: true }
+                });
+            } catch {
+                alert("Failed to fetch weather data.");
+            }
+        });
+    </script>
 </body>
 </html>
